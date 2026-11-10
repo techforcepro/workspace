@@ -1,0 +1,297 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>Response Manager · TechForce Workspace</title>
+
+  <link rel="stylesheet" href="../../assets/css/style.css">
+
+  <style>
+    .rm-toolbar {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:20px 0;
+    }
+
+    .rm-toolbar input,
+    .rm-toolbar select {
+      min-height:42px;
+      border:1px solid var(--line);
+      border-radius:9px;
+      padding:0 12px;
+      background:#fff;
+      min-width:0;
+    }
+
+    .rm-toolbar input {
+      flex:1;
+      min-width:180px;
+    }
+
+    .rm-stats {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin:20px 0;
+    }
+
+    .rm-stat {
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:16px;
+    }
+
+    .rm-stat small {
+      display:block;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .rm-stat strong {
+      display:block;
+      font:800 22px Manrope;
+      margin-top:8px;
+    }
+
+    .rm-list {
+      display:grid;
+      gap:12px;
+    }
+
+    .rm-card {
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:16px;
+    }
+
+    .rm-card-head {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+
+    .rm-card h3 {
+      margin:0 0 6px;
+      font:700 14px Manrope;
+    }
+
+    .rm-meta {
+      font-size:10px;
+      color:var(--muted);
+    }
+
+    .rm-preview {
+      font-size:12px;
+      color:#526078;
+      line-height:1.7;
+      margin:13px 0;
+      overflow-wrap:anywhere;
+    }
+
+    .rm-answer {
+      border-top:1px solid #edf0f5;
+      padding:10px 0;
+      font-size:12px;
+      display:grid;
+      grid-template-columns:minmax(110px,.35fr) 1fr;
+      gap:12px;
+    }
+
+    .rm-answer b {
+      color:#68758a;
+    }
+
+    .rm-detail {
+      margin-top:12px;
+    }
+
+    .rm-detail[hidden] {
+      display:none;
+    }
+
+    .rm-empty {
+      padding:35px;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .rm-actions {
+      display:flex;
+      gap:7px;
+      flex-wrap:wrap;
+    }
+
+    .rm-error {
+      color:#c33e50;
+    }
+
+    @media(max-width:650px) {
+      .rm-stats {
+        grid-template-columns:1fr 1fr;
+      }
+
+      .rm-answer {
+        grid-template-columns:1fr;
+        gap:4px;
+      }
+
+      .rm-card-head {
+        display:block;
+      }
+
+      .rm-actions {
+        margin-top:10px;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../assets/js/config.js"></script>
+  <script src="../../assets/js/common.js" defer></script>
+  <script src="responses.js" defer></script>
+</head>
+
+<body class="app-page">
+
+<div class="app-shell">
+
+  <aside class="sidebar">
+
+    <a class="brand side-brand" href="../../index.html">
+      <span class="brand-mark">TF</span>
+      <span>
+        TECHFORCE
+        <small>WORKSPACE</small>
+      </span>
+    </a>
+
+    <div class="side-label">WORKSPACE</div>
+
+    <a class="side-link" href="../../dashboard/index.html">
+      ▦ <span>Overview</span>
+    </a>
+
+    <a class="side-link selected" href="index.html">
+      ▤ <span>Response Manager</span>
+    </a>
+
+    <div class="side-bottom">
+      <a class="side-link" href="#" id="signOut">
+        ↪ <span>Sign out</span>
+      </a>
+    </div>
+
+  </aside>
+
+  <main class="app-main">
+
+    <header class="app-header">
+
+      <div>
+        <div class="eyebrow">WORKSPACE / TOOLS</div>
+        <h1>Response Manager</h1>
+      </div>
+
+      <div class="user-pill">
+        <span class="avatar" id="userAvatar">U</span>
+        <span id="userEmail">Loading…</span>
+      </div>
+
+    </header>
+
+    <section class="welcome-row">
+
+      <div>
+        <h2>Customer responses</h2>
+        <p class="muted">
+          Review submissions received through your PageForge Contact Forms.
+        </p>
+      </div>
+
+      <button class="btn btn-outline btn-small" id="refreshBtn">
+        ↻ Refresh
+      </button>
+
+    </section>
+
+    <div id="statusMessage" class="message" role="status"></div>
+
+    <section class="rm-stats">
+
+      <div class="rm-stat">
+        <small>TOTAL RESPONSES</small>
+        <strong id="totalResponses">—</strong>
+      </div>
+
+      <div class="rm-stat">
+        <small>YOUR FORMS</small>
+        <strong id="totalForms">—</strong>
+      </div>
+
+      <div class="rm-stat">
+        <small>RECENT (7 DAYS)</small>
+        <strong id="recentResponses">—</strong>
+      </div>
+
+    </section>
+
+    <div class="rm-toolbar">
+
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Search form title or answers…"
+      >
+
+      <select id="formFilter">
+        <option value="">All forms</option>
+      </select>
+
+      <button class="btn btn-outline" id="exportBtn">
+        Export CSV
+      </button>
+
+    </div>
+
+    <section class="panel">
+
+      <div class="panel-head">
+
+        <div>
+          <div class="eyebrow">INBOX</div>
+          <h3>All submissions</h3>
+        </div>
+
+        <span class="tag tag-neutral" id="resultCount">
+          0 RESULTS
+        </span>
+
+      </div>
+
+      <div class="rm-list" id="responseList">
+        <div class="rm-empty">
+          Loading your responses…
+        </div>
+      </div>
+
+    </section>
+
+    <footer class="app-footer">
+      © 2026 TechForce Workspace
+      <span>Private to your account</span>
+    </footer>
+
+  </main>
+
+</div>
+
+</body>
+</html>
