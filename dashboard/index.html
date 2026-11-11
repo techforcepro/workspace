@@ -1,0 +1,365 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101827">
+
+  <title>Dashboard · TechForce Workspace</title>
+
+  <link rel="stylesheet" href="../assets/css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/common.js" defer></script>
+  <script src="../assets/js/dashboard.js" defer></script>
+
+  <style>
+    .workspace-tools {
+      margin-top: 25px;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      padding: 22px;
+      background: #fff;
+      border: 1px solid #e8eaf0;
+      border-radius: 18px;
+      min-width: 0;
+      transition: .2s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: #a5a3ff;
+      box-shadow: 0 10px 28px rgba(30, 40, 80, .07);
+    }
+
+    .tool-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: #efedff;
+      color: #7059dc;
+      font-size: 23px;
+      margin-bottom: 16px;
+    }
+
+    .tool-card h3 {
+      margin: 0 0 8px;
+      font-size: 19px;
+    }
+
+    .tool-card p {
+      margin: 0 0 20px;
+      font-size: 13px;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .tool-card .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .tool-status {
+      font-size: 11px;
+      font-weight: 700;
+      color: #15946c;
+      margin-bottom: 10px;
+      letter-spacing: .6px;
+    }
+
+    @media(max-width:600px) {
+      .tool-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-card {
+        padding: 19px;
+      }
+    }
+  </style>
+</head>
+
+<body class="app-page">
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <a class="brand side-brand" href="../index.html">
+      <span class="brand-mark">TF</span>
+      <span>TECHFORCE<small>WORKSPACE</small></span>
+    </a>
+
+    <div class="side-label">WORKSPACE</div>
+
+    <a class="side-link selected" href="index.html">
+      ▦ <span>Overview</span>
+    </a>
+
+    <a class="side-link" href="#" id="projectsLink">
+      ▣ <span>My projects</span>
+      <em>SOON</em>
+    </a>
+
+    <a class="side-link" href="#" id="accessLink">
+      ◷ <span>Access & permission</span>
+    </a>
+
+    <div class="side-bottom">
+      <a class="side-link" href="#" id="signOut">
+        ↪ <span>Sign out</span>
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+
+  <main class="app-main">
+
+    <header class="app-header">
+      <div>
+        <div class="eyebrow">WORKSPACE / OVERVIEW</div>
+        <h1>Dashboard</h1>
+      </div>
+
+      <div class="user-pill">
+        <span class="avatar" id="avatar">U</span>
+        <span id="userEmail">Loading…</span>
+      </div>
+    </header>
+
+    <!-- WELCOME -->
+
+    <section class="welcome-row">
+      <div>
+        <h2 id="welcomeTitle">Welcome to your workspace</h2>
+        <p class="muted">
+          Your work starts here. Your tools and projects will appear in this space.
+        </p>
+      </div>
+
+      <span class="tag tag-neutral" id="roleTag">USER</span>
+    </section>
+
+    <!-- STATISTICS -->
+
+    <section class="stats-grid">
+
+      <article class="stat-card">
+        <div class="stat-icon purple">◷</div>
+        <span class="muted">ACCESS STATUS</span>
+        <strong id="accessStatus">Checking…</strong>
+        <small id="accessSub">Verifying permission</small>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon blue">⌁</div>
+        <span class="muted">ACCESS EXPIRES</span>
+        <strong id="expiryValue">—</strong>
+        <small id="expirySub">No active permission</small>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon green">▣</div>
+        <span class="muted">MY PROJECTS</span>
+        <strong>0</strong>
+        <small>Project tools coming soon</small>
+      </article>
+
+    </section>
+
+    <!-- PERMISSION AND CODESPACE -->
+
+    <section class="content-grid">
+
+      <article class="panel access-panel">
+
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">PERMISSION</div>
+            <h3>Your workspace access</h3>
+          </div>
+
+          <span class="tag tag-neutral" id="accessBadge">
+            CHECKING
+          </span>
+        </div>
+
+        <p id="accessDescription" class="muted">
+          Checking your access status…
+        </p>
+
+        <div id="accessActions" class="action-row"></div>
+
+        <div class="info-strip">
+          Workspace access is controlled by the TechForce administrator.
+          Approval may be time-limited and can be revoked.
+        </div>
+
+      </article>
+
+      <article class="panel">
+
+        <div class="eyebrow">YOUR WORKSPACE</div>
+        <h3>CodeSpace</h3>
+
+        <div class="coming-card">
+          <span class="coming-icon">⌘</span>
+          <b>Development environment</b>
+          <p class="muted">
+            Your coding workspace will be integrated here in a future update.
+          </p>
+          <span class="tag tag-neutral">COMING IN V2</span>
+        </div>
+
+      </article>
+
+    </section>
+
+    <!-- NEW: WORKSPACE TOOLS -->
+
+    <section class="panel workspace-tools">
+
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">YOUR APPLICATIONS</div>
+          <h3>Workspace Tools</h3>
+          <p class="muted">
+            Create forms and manage your customer submissions.
+          </p>
+        </div>
+
+        <span class="tag tag-neutral">TOOLS</span>
+      </div>
+
+      <div class="tool-grid">
+
+        <!-- CONTACT FORMS -->
+
+        <article class="tool-card">
+
+          <div class="tool-icon">▤</div>
+
+          <div class="tool-status">
+            AVAILABLE
+          </div>
+
+          <h3>Contact Forms Studio</h3>
+
+          <p class="muted">
+            Build professional contact forms, customize designs,
+            use templates and publish forms for your customers.
+          </p>
+
+          <a
+            href="../contact-studio.html"
+            class="btn btn-primary"
+          >
+            + Create New Form
+          </a>
+
+        </article>
+
+        <!-- RESPONSE MANAGER -->
+
+        <article class="tool-card">
+
+          <div class="tool-icon"
+               style="background:#e8f3ff;color:#3986d8;">
+            ▣
+          </div>
+
+          <div class="tool-status">
+            AVAILABLE
+          </div>
+
+          <h3>Response Manager</h3>
+
+          <p class="muted">
+            View, organize and manage submissions received
+            through your published contact forms.
+          </p>
+
+          <a
+            href="../tools/response-manager/index.html"
+            class="btn btn-outline"
+          >
+            Open Response Manager →
+          </a>
+
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- GETTING STARTED -->
+
+    <section class="panel activity-panel">
+
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">GETTING STARTED</div>
+          <h3>What happens next?</h3>
+        </div>
+      </div>
+
+      <div class="steps-inline">
+
+        <div>
+          <b>01</b>
+          <span>Account created</span>
+          <small>Your identity is secured.</small>
+        </div>
+
+        <div>
+          <b>02</b>
+          <span>Request access</span>
+          <small>Ask the admin to enable your workspace.</small>
+        </div>
+
+        <div>
+          <b>03</b>
+          <span>Start working</span>
+          <small>Use your workspace while access is active.</small>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer class="app-footer">
+      © 2026 TechForce Workspace
+      <span>Secure workspace management</span>
+    </footer>
+
+  </main>
+
+</div>
+
+</body>
+</html>
